@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "git+https://github.com/bpolania/NFsTaker-webapp"
   },
   "files": [
     "dist/"
@@ -24,9 +24,9 @@
   "author": "Boris Polania",
   "license": "MIT",
   "bugs": {
-    "url": ""
+    "url": "https://github.com/bpolania/NFsTaker-webapp/issues"
   },
-  "homepage": "",
+  "homepage": "https://github.com/bpolania/NFsTaker-webapp/tree/main#nfstaker-webapp",
   "dependencies": {
     "serve": "^13.0.2"
   },
