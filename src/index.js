@@ -4,6 +4,9 @@ import MetaMaskOnboarding from '@metamask/onboarding'
 import nfstakerAbi from './abi/nfstaker'
 import nftAbi from './abi/nft'
 
+let nfstakerAddress;
+let nftAddress;
+let tokenAddress;
 let nfstakerContract;
 let nftContract;
 let popContract;
@@ -18,19 +21,14 @@ const isMetaMaskInstalled = () => {
   return Boolean(ethereum && ethereum.isMetaMask)
 }
 
-// Dapp Status Section
-const networkDiv = document.getElementById('network')
-const chainIdDiv = document.getElementById('chainId')
+// Connected Account Section
 const accountsDiv = document.getElementById('accounts')
 
-// Basic Actions Section
+// Actions Section
 const onboardButton = document.getElementById('connectButton')
 const stakeDropdwn = document.getElementById('dd')
 const unstakeDropdwn = document.getElementById('ddu')
-
-window.onload = function() { 
-  
-};
+const stakeTokenId = document.getElementById('tid1')
 
 const initialize = async () => {
 
@@ -40,17 +38,15 @@ const initialize = async () => {
   } catch (error) {
     console.error(error)
   }
-
-  let accountButtonsInitialized = false
-
-  const accountButtons = [
-  ]
-
   const web3 = new Web3(window.ethereum);
   let accounts = await web3.eth.getAccounts();
-  nfstakerContract = new web3.eth.Contract(nfstakerAbi, "0x0D87577C8cEca60920186fE7530aC14B73BbD335");
-  nftContract = new web3.eth.Contract(nftAbi, "0x74acac453a92a846a7280FB09b486c4a67896f24");
-  popContract = new web3.eth.Contract(nftAbi, "0x3FE3D809C8Ae3243bFf003784B77ECb415b5e6b6");
+  nfstakerAddress = "0x417BA49F37ecA03f183988D586291DEA43321d90";
+  nftAddress = "0xD0481856Cc423651233920Ed3092579c0cB1Db6a";
+  tokenAddress = "0xE6a0b70cE16df89941b1e15aC1bD8D7CA36131B6";
+  nfstakerContract = new web3.eth.Contract(nfstakerAbi, nfstakerAddress);
+  popContract = new web3.eth.Contract(nftAbi, tokenAddress);
+  nftContract = new web3.eth.Contract(nftAbi, nftAddress);
+  
   const isMetaMaskConnected = () => accounts && accounts.length > 0
 
   const onClickInstall = () => {
@@ -89,34 +85,43 @@ const initialize = async () => {
   }
 
   const stake = async (address,id) => {
-    nftContract.methods.approve("0x0D87577C8cEca60920186fE7530aC14B73BbD335",id).send({from:accounts[0]}).on('receipt', function(){
+    nftContract.methods.approve(nfstakerAddress,id).send({from:accounts[0]}).on('receipt', function(){
       console.log("approved");
       nfstakerContract.methods.stake(address,id).send({from:accounts[0]}).on('receipt', function(){
-        console.log("success");
+        console.log("staked!");
+        alert("staked!");
         }).on('error', function(){
-          console.log("error");
+          console.log("staking failed!");
+          alert("staking failed!");
       });
     }).on('error', function(){
-      console.log("error");
+      console.log("Approval failed");
+      alert("Approval failed");
     }); 
   }
 
-  const unstake = async (address,id,amount) => {
-    popContract.methods.approve("0x0D87577C8cEca60920186fE7530aC14B73BbD335",amount).send({from:accounts[0]}).on('receipt', function(){
+  const unstake = async (address) => {
+    const stakingAmount = await nfstakerContract.methods.getStakingAmountOf(address).call();
+    const ids = await nfstakerContract.methods.getStakedIds(accounts[0],address).call();
+    console.log(ids);
+    popContract.methods.approve(nfstakerAddress,stakingAmount).send({from:accounts[0]}).on('receipt', function(){
       console.log("approved");
-      nfstakerContract.methods.unstake(address,id,amount).send({from:accounts[0]}).on('receipt', function(){
-        console.log("success");
+      nfstakerContract.methods.unstake(nftAddress,ids[0],10).send({from:accounts[0]}).on('receipt', function(){
+        console.log("unstaked!");
+        alert("unstaked!");
         }).on('error', function(){
-          console.log("error");
+          console.log("unstaking failed!");
+          alert("staking failed!");
       });
     }).on('error', function(){
-      console.log("error");
+      console.log("Approvael failed");
+      alert("Approval failed");
     }); 
   }
 
   const initializeAccountButtons = async () => {
 
-    const allAddreses = await nfstakerContract.methods.getNftsAdressesList().call();
+    const allAddreses = await nfstakerContract.methods.getAllNftsAddresses().call();
     for (var item in allAddreses) {
       var opt = document.createElement('a');
       opt.setAttribute("class", "dropdown-item");
@@ -126,10 +131,15 @@ const initialize = async () => {
     }
 
     $('#dd a').on('click', function(){
-      stake($(this).html(),3);
+      console.log(stakeTokenId.value)
+      if (stakeTokenId.value != '') {
+        stake($(this).html(),parseInt(stakeTokenId.value));
+      } else {
+        alert("Type an NFT Token Id");
+      }
     });
 
-    const ownerAddreses = await nfstakerContract.methods.getNftsAdresses(accounts[0]).call();
+    const ownerAddreses = await nfstakerContract.methods.getNftsAddressesOf(accounts[0]).call();
     console.log(ownerAddreses);
     for (var item in ownerAddreses) {
       console.log(ownerAddreses[item]);
@@ -141,7 +151,7 @@ const initialize = async () => {
     }
 
     $('#ddu a').on('click', function(){
-      unstake($(this).html(),3,10);
+      unstake($(this).html());
     });
 
   }
@@ -155,41 +165,11 @@ const initialize = async () => {
     updateButtons()
   }
 
-  function handleNewChain (chainId) {
-    chainIdDiv.innerHTML = chainId
-  }
-
-  function handleNewNetwork (networkId) {
-    networkDiv.innerHTML = networkId
-  }
-
-  async function getNetworkAndChainId () {
-    try {
-      const chainId = await ethereum.request({
-        method: 'eth_chainId',
-      })
-      handleNewChain(chainId)
-
-      const networkId = await ethereum.request({
-        method: 'net_version',
-      })
-      handleNewNetwork(networkId)
-    } catch (err) {
-      console.error(err)
-    }
-  }
-
   updateButtons()
 
   if (isMetaMaskInstalled()) {
-
     ethereum.autoRefreshOnNetworkChange = false
-    getNetworkAndChainId()
-
-    ethereum.on('chainChanged', handleNewChain)
-    ethereum.on('networkChanged', handleNewNetwork)
     ethereum.on('accountsChanged', handleNewAccounts)
-
     try {
       const newAccounts = await ethereum.request({
         method: 'eth_accounts',
@@ -202,4 +182,3 @@ const initialize = async () => {
 }
 
 window.addEventListener('DOMContentLoaded', initialize)
-

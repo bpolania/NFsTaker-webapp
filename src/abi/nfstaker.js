@@ -162,9 +162,9 @@ const nfstakerAbi = [
       },
       {
         "indexed": false,
-        "internalType": "uint256",
+        "internalType": "uint64",
         "name": "_tokenId",
-        "type": "uint256"
+        "type": "uint64"
       }
     ],
     "name": "Staked",
@@ -181,9 +181,9 @@ const nfstakerAbi = [
       },
       {
         "indexed": false,
-        "internalType": "uint256",
+        "internalType": "uint64",
         "name": "_tokenId",
-        "type": "uint256"
+        "type": "uint64"
       }
     ],
     "name": "Transfer",
@@ -200,9 +200,9 @@ const nfstakerAbi = [
       },
       {
         "indexed": false,
-        "internalType": "uint256",
+        "internalType": "uint64",
         "name": "_tokenId",
-        "type": "uint256"
+        "type": "uint64"
       }
     ],
     "name": "Unstaked",
@@ -242,9 +242,9 @@ const nfstakerAbi = [
         "type": "address"
       },
       {
-        "internalType": "uint256",
+        "internalType": "uint64",
         "name": "_amount",
-        "type": "uint256"
+        "type": "uint64"
       }
     ],
     "name": "addNFT",
@@ -253,14 +253,8 @@ const nfstakerAbi = [
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "getNftsAdresses",
+    "inputs": [],
+    "name": "getAllNftsAddresses",
     "outputs": [
       {
         "internalType": "address[]",
@@ -272,8 +266,14 @@ const nfstakerAbi = [
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "getNftsAdressesList",
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "getNftsAddressesOf",
     "outputs": [
       {
         "internalType": "address[]",
@@ -298,6 +298,49 @@ const nfstakerAbi = [
         "internalType": "bytes32",
         "name": "",
         "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_staker",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_nft",
+        "type": "address"
+      }
+    ],
+    "name": "getStakedIds",
+    "outputs": [
+      {
+        "internalType": "uint64[]",
+        "name": "",
+        "type": "uint64[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_nft",
+        "type": "address"
+      }
+    ],
+    "name": "getStakingAmountOf",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -540,9 +583,9 @@ const nfstakerAbi = [
         "type": "address"
       },
       {
-        "internalType": "uint256",
+        "internalType": "uint64",
         "name": "_tokenId",
-        "type": "uint256"
+        "type": "uint64"
       }
     ],
     "name": "stake",
@@ -603,9 +646,9 @@ const nfstakerAbi = [
         "type": "address"
       },
       {
-        "internalType": "uint256",
+        "internalType": "uint64",
         "name": "_tokenId",
-        "type": "uint256"
+        "type": "uint64"
       },
       {
         "internalType": "uint256",
