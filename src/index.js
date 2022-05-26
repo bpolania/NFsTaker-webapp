@@ -3,6 +3,7 @@ var Contract = require('web3-eth-contract');
 import MetaMaskOnboarding from '@metamask/onboarding'
 import nfstakerAbi from './abi/nfstaker'
 import nftAbi from './abi/nft'
+import popAbi from './abi/pop'
 
 let nfstakerAddress;
 let nftAddress;
@@ -10,6 +11,7 @@ let tokenAddress;
 let nfstakerContract;
 let nftContract;
 let popContract;
+let balance;
 
 const currentUrl = new URL(window.location.href)
 const forwarderOrigin = currentUrl.hostname === 'localhost'
@@ -23,6 +25,7 @@ const isMetaMaskInstalled = () => {
 
 // Connected Account Section
 const accountsDiv = document.getElementById('accounts')
+const balanceDiv = document.getElementById('balance')
 
 // Actions Section
 const onboardButton = document.getElementById('connectButton')
@@ -44,7 +47,7 @@ const initialize = async () => {
   nftAddress = "0xD0481856Cc423651233920Ed3092579c0cB1Db6a";
   tokenAddress = "0xE6a0b70cE16df89941b1e15aC1bD8D7CA36131B6";
   nfstakerContract = new web3.eth.Contract(nfstakerAbi, nfstakerAddress);
-  popContract = new web3.eth.Contract(nftAbi, tokenAddress);
+  popContract = new web3.eth.Contract(popAbi, tokenAddress);
   nftContract = new web3.eth.Contract(nftAbi, nftAddress);
   
   const isMetaMaskConnected = () => accounts && accounts.length > 0
@@ -121,6 +124,9 @@ const initialize = async () => {
 
   const initializeAccountButtons = async () => {
 
+    balance = await popContract.methods.balanceOf(accounts[0]).call();
+    balanceDiv.innerHTML = balance;
+    console.log(balance)
     const allAddreses = await nfstakerContract.methods.getAllNftsAddresses().call();
     for (var item in allAddreses) {
       var opt = document.createElement('a');
